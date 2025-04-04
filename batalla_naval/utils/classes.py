@@ -1,3 +1,5 @@
+import random
+
 class Ship:
     def __init__(self, name, size):
         self.name = name
@@ -5,7 +7,7 @@ class Ship:
         self.coordinates = []
         self.hits = 0
 
-    def __isSunk__(self): 
+    def is_sunk(self): 
         return self.hits == self.size
     
     def set_coordinates(self, coordinates):
@@ -32,38 +34,51 @@ class Board:
             if self.grid[y][x] == '~':
                 self.grid[y][x] = symbol
             else:
-                raise Exception('Pocision ocupada')
-    
+                raise Exception('Posición ocupada')
+
     def place_ship(self, ship: Ship, coordinates: list):
         for (x, y) in coordinates:
             if self.grid[y][x] != '~':
                 raise Exception(f"Posición ocupada en ({x}, {y})")
         for (x, y) in coordinates:
-            self.grid[y][x] == 'S'
+            self.grid[y][x] = 'S'
         ship.set_coordinates(coordinates)
-    
 
 class Player: 
-    def __init__(self, default_board: Board, attack_board: Board, name: str, ships: list, shots: int): 
+    def __init__(self, default_board: Board, attack_board: Board, name: str): 
         self.name = name
         self.attempts = []
-        self.shots = shots
-        self.ships = ships
+        self.ships = []
         self.board = default_board
         self.attack_board = attack_board
 
+    def place_ships(self):
+        ship_sizes = [5, 4, 3, 3, 2]
+        for size in ship_sizes:
+            while True:
+                x = random.randint(0, self.board.size - 1)
+                y = random.randint(0, self.board.size - 1)
+                horizontal = random.choice([True, False])
+                coordinates = [(x + i, y) if horizontal else (x, y + i) for i in range(size)]
+
+                if all(0 <= cx < self.board.size and 0 <= cy < self.board.size and self.board.grid[cy][cx] == '~' for cx, cy in coordinates):
+                    ship = Ship(f"Barco-{size}", size)
+                    self.board.place_ship(ship, coordinates)
+                    self.ships.append(ship)
+                    break
+
 class Game:
     def __init__(self):
-        self.players  = []
+        self.players = []
 
     def add_player(self, name):
         if len(self.players) >= 2:
-            raise Exception('Solo se permite dos jugadores')
+            raise Exception('Solo se permiten dos jugadores')
 
         board = Board(10)
         attack_board = Board(10)
-        ships = []
-        player =  Player(board, attack_board, name, ships, 0)
+        player = Player(board, attack_board, name)
+        player.place_ships()
         self.players.append(player)
         return player
 
@@ -96,14 +111,19 @@ class Game:
         
         while True:
             print(f"\nTurno {turno}: {attacker.name} dispara.")
-            
+            print("\nTablero de ataques:")
+            attacker.attack_board.display()
+
+            print("\nTablero de defensa:")
+            attacker.board.display()
+
             try:
                 x = int(input("Ingrese la coordenada x: "))
                 y = int(input("Ingrese la coordenada y: "))
                 
                 hit = self.fire(attacker, defender, x, y)
 
-                if all(ship.__isSunk__() for ship in defender.ships):
+                if all(ship.is_sunk() for ship in defender.ships):
                     print(f"\n🎉 {attacker.name} ha ganado la partida. ¡Todos los barcos de {defender.name} han sido hundidos!")
                     break
 
@@ -114,6 +134,3 @@ class Game:
                 print("Por favor, ingresa coordenadas válidas.")
             except Exception as e:
                 print(f"Error: {e}")
-        
-        attacker, defender = defender, attacker
-        turno += 1
