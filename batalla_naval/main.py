@@ -13,4 +13,10 @@ playerOne = Player(playerOne_default_board, playerOne_attack_board, "Pepe", [], 
 
 playerOne.board.place_symbol(1, 2, "▮")
 playerOne.board.display()
-
+"""
+if __name__ == "__main__":
+    juego = Game()
+    juego.add_player("Jugador 1", modo='manual')
+    juego.add_player("Jugador 2", modo='auto')
+    juego.start_game()
+"""
