@@ -19,4 +19,5 @@ if __name__ == "__main__":
     juego.add_player("Jugador 1", modo='manual')
     juego.add_player("Jugador 2", modo='auto')
     juego.start_game()
+    https://chatgpt.com/share/67f14c57-7218-8000-9525-30d3d1ee229e
 """
