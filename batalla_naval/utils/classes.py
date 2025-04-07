@@ -1,11 +1,6 @@
 
 # clases escalables
-
-ALPHABET: list = [
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", 
-    "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", 
-    "U", "V", "W", "X", "Y", "Z"
-]
+from config import ALPHABET, BOARD_SIZE
 
 class Coordinate:
     def __init__(self, letter: str, number: int):
@@ -30,7 +25,7 @@ class Ship:
 
 
 # import HERE, cuz this is a circular import
-from .helper import get_numbers_between, write_end_characters, is_valid_coordinate
+from .helper import write_end_characters, is_valid_coordinate
 
 class Board: 
     def __init__(self, size: int):
@@ -52,7 +47,7 @@ class Board:
         boat_coords = boat.coords
         
         for coord in boat_coords:
-            if (is_valid_coordinate(coord, boat, compare_list)):
+            if (is_valid_coordinate(coord, boat, compare_list, BOARD_SIZE)):
 
                 print("Placing boat at: ", coord.letter, coord.number)
                 x, y = coord.getMatrixPosition()

@@ -1,5 +1,7 @@
 
-from .classes import Ship, Coordinate, ALPHABET
+from .classes import Ship, Coordinate
+from config import BOARD_SIZE, BOAT_AMOUNT, ALPHABET
+
 
 def get_numbers_between(num1: int, num2: int):
     lower = min(num1, num2)
@@ -61,21 +63,32 @@ def isOnTop(allCoords: list[Coordinate], currentCoord: Coordinate):
         return False
     
 def isOverlappingBoats(coord: Coordinate, player_boats: list[Ship]) -> bool:
+    # iterate over each boat player has
     for otherBoat in player_boats:
-        print("size", otherBoat.size)
         for other_boat_coord in otherBoat.coords:
-            print("other boat coord", other_boat_coord.letter, other_boat_coord.number)
-            print("current coord", coord.letter, coord.number)
+            # and compare each coordinate of the current boat iteration with the current coord
             if ((coord.letter == other_boat_coord.letter) and (coord.number == other_boat_coord.number)):
                 print("Overlapping detected")
                 return True
     return False
 
+def isInBounds(coord: Coordinate, board_size: int) -> bool:
+    # this weird syntax, creates a sublist of the alphabet with the size of the board
+    ALPHABET_SECTOR = ALPHABET[:board_size]
+
+    # y ahora checks el rango entre el alphabeto en base a boardsize y boardsize
+    if ((coord.letter in ALPHABET_SECTOR) and (coord.number in range(board_size))):
+        return True
+    return False
+
 
 # main funcs
-
-def is_valid_coordinate(currentCoord: Coordinate, boat: Ship, allBoats: list[Ship]) -> bool:    
+def is_valid_coordinate(currentCoord: Coordinate, boat: Ship, allBoats: list[Ship], BOARD_SIZE: int) -> bool:    
     allCoords: list[Coordinate] = boat.coords
+
+    if (not isInBounds(currentCoord, BOARD_SIZE)):
+        print("Out of bounds detected")
+        return False
 
     if (isOverlappingBoats(currentCoord, allBoats)):
         print("Overlapping detected")

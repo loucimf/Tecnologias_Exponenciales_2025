@@ -3,13 +3,19 @@
 	Date: 4/4/2025
 """
 
+from config import BOARD_SIZE, BOAT_AMOUNT, SHOTS
 from utils.classes import Board, Player, Ship, Coordinate
 from utils.helper import set_all_coordinates
 
-BOAT_AMOUNT: int = 5
-# max 26 (alfabeto)
-BOARD_SIZE: int = 10
 
+
+playerOne_default_board = Board(BOARD_SIZE)
+playerOne_attack_board = Board(BOARD_SIZE)
+playerOne = Player(playerOne_default_board, playerOne_attack_board, "Pepe", [], SHOTS)
+
+playerTwo_default_board = Board(BOARD_SIZE)
+playerTwo_attack_board = Board(BOARD_SIZE)
+playerTwo = Player (playerTwo_default_board, playerTwo_attack_board, "Josefo", [], SHOTS)
 
 
 def chooseBoatLocations(player: Player): 
@@ -42,27 +48,37 @@ def chooseBoatLocations(player: Player):
 	player.ships = allBoats
 
 
-
-		
-
-
 def main():
 
-	playerOne_default_board = Board(BOARD_SIZE)
-	playerOne_attack_board = Board(BOARD_SIZE)
-	playerOne = Player(playerOne_default_board, playerOne_attack_board, "Pepe", [], 10)
-
-
-
 	chooseBoatLocations(playerOne)
-
-
-	playerTwo_default_board = Board(BOARD_SIZE)
-	playerTwo_attack_board = Board(BOARD_SIZE)
-	playerTwo = Player (playerTwo_default_board, playerTwo_attack_board, "Josefo", [], 10)
-
 	chooseBoatLocations(playerTwo)
+	play_game()
 
+
+def play_game():
+	print("Welcome to Battleship!")
+
+	win: bool = False
+	current_player = playerOne
+	opponent = playerTwo
+
+	while not win:
+		print(f"{current_player.name}, es tu turno")
+		current_player.default_board.display()
+		print("ATTACK BOARD")
+		current_player.attack_board.display()
+
+		letter, number_raw = input("Introduce la coordenada a atacar: ").split()
+		number = int(number_raw)
+		coord = Coordinate(letter, number)
+
+		current_player.attempts.append(coord)
+		current_player.shots -= 1
+
+		current_player, opponent = opponent, current_player
+
+
+		
 
 if (__name__ == "__main__"):
 	main()
