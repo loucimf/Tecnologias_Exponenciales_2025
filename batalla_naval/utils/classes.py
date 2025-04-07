@@ -1,6 +1,5 @@
 
 # clases escalables
-from .helper import get_numbers_between
 
 ALPHABET: list = [
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", 
@@ -19,7 +18,7 @@ class Coordinate:
 
 
 class Ship:
-    def __init__(self, size: int, start_coord: Coordinate, end_coord: Coordinate, coords: list):
+    def __init__(self, size: int, start_coord: Coordinate, end_coord: Coordinate, coords: list[Coordinate]):
         self.size = size
         self.start_coord = start_coord
         self.end_coord = end_coord
@@ -28,7 +27,10 @@ class Ship:
 
     def __isSunk__(self): 
         return self.hits == self.size
-    
+
+
+# import HERE, cuz this is a circular import
+from .helper import get_numbers_between, write_end_characters, is_valid_coordinate
 
 class Board: 
     def __init__(self, size: int):
@@ -46,28 +48,25 @@ class Board:
         if 0 <= x < self.size and 0 <= y < self.size:
             self.grid[y][x] = symbol
 
-    def place_boat(self, boat: Ship):
+    def place_boat(self, boat: Ship, compare_list: list[Ship]):
+        boat_coords = boat.coords
         
-        start_coord = boat.start_coord.getMatrixPosition()
-        end_coord= boat.end_coord.getMatrixPosition()
+        for coord in boat_coords:
+            if (is_valid_coordinate(coord, boat, compare_list)):
 
-        if (start_coord[0] == end_coord[0] and start_coord[1] == end_coord[1]):
-            self.place_symbol(start_coord[0], start_coord[1], "▯")
+                print("Placing boat at: ", coord.letter, coord.number)
+                x, y = coord.getMatrixPosition()
 
-        if (start_coord[0] == end_coord[0]):
-            # y coords son las mismas asi q esta vertical
-            yCoords = get_numbers_between(start_coord[1], end_coord[1])
-            for y in yCoords:
-                self.place_symbol(start_coord[0], y, "▯")
+                if (coord == boat.start_coord or coord == boat.end_coord):
+                    write_end_characters(self, x, y, boat)
+                    continue
 
-        elif (start_coord[1] == end_coord[1]):
-            # x coords son las mismas asi que esta horziaotala
-            xCoords = get_numbers_between(start_coord[0], end_coord[0])
-            for x in xCoords:
-                self.place_symbol(x, start_coord[1], "▯")
-
-
-
+                self.place_symbol(x, y, '■')
+            else:
+                print("INVALID_COORDINATE")
+                input("Porfavor, volver a intentar")
+                break
+        
 
 
 class Player: 

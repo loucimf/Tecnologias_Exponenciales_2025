@@ -4,7 +4,7 @@
 """
 
 from utils.classes import Board, Player, Ship, Coordinate
-from utils.helper import is_valid_coordinate, set_all_coordinates
+from utils.helper import set_all_coordinates
 
 BOAT_AMOUNT: int = 5
 # max 26 (alfabeto)
@@ -28,11 +28,14 @@ def chooseBoatLocations(player: Player):
 		start_coord = Coordinate(letter1, number1)
 		end_coord = Coordinate(letter2, number2)
 
-		boat = Ship(boatIndex, start_coord, end_coord)
+		boat = Ship(0, start_coord, end_coord, [])
 
-		player.board.place_boat(boat)
+		# fill the missing props
 		set_all_coordinates(boat)
-		
+		boat.size = boat.coords.__len__()
+
+		player.board.place_boat(boat, allBoats)
+
 		allBoats.append(boat)
 		player.board.display()
 
@@ -48,6 +51,8 @@ def main():
 	playerOne_default_board = Board(BOARD_SIZE)
 	playerOne_attack_board = Board(BOARD_SIZE)
 	playerOne = Player(playerOne_default_board, playerOne_attack_board, "Pepe", [], 10)
+
+
 
 	chooseBoatLocations(playerOne)
 
