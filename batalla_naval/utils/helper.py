@@ -1,5 +1,5 @@
 
-from .classes import Ship, Coordinate
+from .classes import Ship, Coordinate, Player, Board
 from config import BOARD_SIZE, BOAT_AMOUNT, ALPHABET
 
 
@@ -10,6 +10,34 @@ def get_numbers_between(num1: int, num2: int):
     numbers_in_between = list(range(lower + 1, upper))
     
     return numbers_in_between
+
+# helps with redundancy
+def isSameAbstractCoord(coord1: Coordinate, coord2: Coordinate) -> bool:
+    if (coord1.letter == coord2.letter and coord1.number == coord2.number):
+        return True
+    return False
+
+def check_hit(player: Player, opponent: Player, coord: Coordinate) -> bool:
+    # check if the coordinate is in any of the boats
+    x, y = coord.getMatrixPosition()
+
+    for boat in player.ships:
+        print("Checking coords array: ", boat.coords)
+        for boat_coord in boat.coords:
+
+            if (isSameAbstractCoord(boat_coord, coord)):
+                input("Hit detected")
+                boat.hits += 1
+
+                player.attack_board.place_symbol(x, y, 'X')
+                opponent.board.place_symbol(x, y, '⨷')
+                return True
+            
+    player.attack_board.place_symbol(x, y, 'O')
+    opponent.board.place_symbol(x, y, 'O')
+            
+    input("Miss detected")
+    return False 
 
 def set_all_coordinates(boat: Ship):
     allCoordinates: list = []
@@ -58,7 +86,7 @@ def isADiagonal(boat: Ship):
     
 def isOnTop(allCoords: list[Coordinate], currentCoord: Coordinate):
     for coordIndex in allCoords:
-        if (currentCoord.letter == coordIndex.letter and currentCoord.number == coordIndex.number):
+        if (isSameAbstractCoord(coordIndex, currentCoord)):
             return True
         return False
     
@@ -67,8 +95,8 @@ def isOverlappingBoats(coord: Coordinate, player_boats: list[Ship]) -> bool:
     for otherBoat in player_boats:
         for other_boat_coord in otherBoat.coords:
             # and compare each coordinate of the current boat iteration with the current coord
-            if ((coord.letter == other_boat_coord.letter) and (coord.number == other_boat_coord.number)):
-                print("Overlapping detected")
+            if (isSameAbstractCoord(coord, other_boat_coord)):
+                print("Overlapping is: ", coord.letter, coord.number , " ;  ", other_boat_coord.letter, other_boat_coord.number)
                 return True
     return False
 
@@ -85,6 +113,10 @@ def isInBounds(coord: Coordinate, board_size: int) -> bool:
 # main funcs
 def is_valid_coordinate(currentCoord: Coordinate, boat: Ship, allBoats: list[Ship], BOARD_SIZE: int) -> bool:    
     allCoords: list[Coordinate] = boat.coords
+
+    if (allCoords[0] == currentCoord):
+        print("Start coord detected")  
+        return True  
 
     if (not isInBounds(currentCoord, BOARD_SIZE)):
         print("Out of bounds detected")
