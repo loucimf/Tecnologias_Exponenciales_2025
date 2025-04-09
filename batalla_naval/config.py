@@ -31,3 +31,5 @@ def calculate_boats(BOARD_SIZE: int, MINIMUM_BOATS: int, SCALE_FACTOR: float, MA
 
 SHOTS: int = calculate_shots(BOARD_SIZE, MINIMUM_SHOTS, MAX_SHOTS, 0.15)
 BOATS_AMOUNT: int = calculate_boats(BOARD_SIZE, MINIMUM_BOATS, 0.05, MAX_BOATS)
+
+

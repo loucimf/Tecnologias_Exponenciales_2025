@@ -8,7 +8,7 @@ class Coordinate:
         self.number = number
     
     def getMatrixPosition(self): # 😎 (super jaker)
-        return [ALPHABET.index(self.letter), self.number]
+        return [ALPHABET.index(self.letter), self.number] #
 
 class Ship:
     def __init__(self, size: int, start_coord: Coordinate, end_coord: Coordinate, coords: list[Coordinate]):
@@ -26,12 +26,14 @@ class Board:
         self.size = size
         self.grid = [['~' for _ in range(size)] for _ in range(size)]
     
+    # overall weird syntax but simple
     def display(self): 
-        #ts crea una sequencia de 0 a (size - 1) y "transforma" todo a string (las columnas), todo neatly spaced
+        #ts crea una sequencia de 0 a (size - 1) y crea expresiones string con cada elemento de alphabet y "transforma" todo a string (las columnas), todo neatly spaced
         print("   " + " ".join(ALPHABET[i] for i in range(self.size)))
         #ts enumera el iterable GRID, y con su indice crea una lista de las filas
         for idx, row in enumerate(self.grid):
-            print(f"{idx:>2} " + " ".join(row))
+            # so the rows dont start at 0, 1, 2, 3
+            print(f"{idx + 1:>2} " + " ".join(row))
         
     def place_symbol(self, x: int, y: int, symbol): 
         if 0 <= x < self.size and 0 <= y < self.size:
@@ -72,14 +74,16 @@ class Player:
 
 
 
-# for testing
+# for testing THIS WAS THE ERRORRR
 DEFAULT_BOATS_COORDINATES: list[Ship] = []
 
+# while this does generate default boat coordinates it actually does not. 
+# this both generates coordinates for boats and creates the boats and appends it to the default_boat..., so the default list itself, is composed of many classes of boat, that are the same for both players
 for i in range(MINIMUM_BOATS):
     from .helper import set_all_coordinates
     # Create a ship with size 1 and coordinates
     start_coord: Coordinate = Coordinate(ALPHABET[i], 0)
-    end_coord: Coordinate = Coordinate(ALPHABET[i], 1)
+    end_coord: Coordinate = Coordinate(ALPHABET[i], 2)
     
     ship = Ship(1, start_coord, end_coord, [])
 
@@ -89,6 +93,7 @@ for i in range(MINIMUM_BOATS):
 
     DEFAULT_BOATS_COORDINATES.append(ship)
 
+# same as paint_symbols but w/o validation
 def no_validation_paint_symbols(player: Player, allBoats: list[Ship]):
     print(player.name)
     for _boats in allBoats:
