@@ -6,7 +6,6 @@ from config import BOARD_SIZE, BOAT_AMOUNT, SHOTS
 from utils.classes import Board, Player, Ship, Coordinate, no_validation_paint_symbols
 from utils.helper import set_all_coordinates, check_hit, debug, clone_boats, isInBounds
 
-
 playerOne_default_board = Board(BOARD_SIZE)
 playerOne_attack_board = Board(BOARD_SIZE)
 playerOne = Player(playerOne_default_board, playerOne_attack_board, "Pepe", clone_boats(), SHOTS)
@@ -14,6 +13,12 @@ playerOne = Player(playerOne_default_board, playerOne_attack_board, "Pepe", clon
 playerTwo_default_board = Board(BOARD_SIZE)
 playerTwo_attack_board = Board(BOARD_SIZE)
 playerTwo = Player (playerTwo_default_board, playerTwo_attack_board, "Josefo", clone_boats(), SHOTS)
+
+player_one_name = input("Introduce el nombre del jugador 1: ")
+player_two_name = input("Introduce el nombre del jugador 2: ")
+
+playerOne.name = player_one_name
+playerTwo.name = player_two_name
 
 
 def chooseBoatLocations(player: Player): 
@@ -52,7 +57,6 @@ def main():
 	#chooseBoatLocations(playerTwo)
 	no_validation_paint_symbols(playerOne, playerOne.ships)
 	no_validation_paint_symbols(playerTwo, playerTwo.ships)
-	
 	play_game()
 
 
