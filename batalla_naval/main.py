@@ -4,7 +4,7 @@
 """
 from config import BOARD_SIZE, BOAT_AMOUNT, SHOTS
 from utils.classes import Board, Player, Ship, Coordinate, no_validation_paint_symbols
-from utils.helper import set_all_coordinates, check_hit, debug, clone_boats, isInBounds
+from utils.helper import set_all_coordinates, check_hit, clone_boats, valid_shot
 
 playerOne_default_board = Board(BOARD_SIZE)
 playerOne_attack_board = Board(BOARD_SIZE)
@@ -94,19 +94,15 @@ def play_game():
 
 		letter, number_raw = input("Introduce la coordenada a atacar: ").split()
 		number = int(number_raw) - 1
-		coord = Coordinate(letter, number)
-
-		current_player.attempts.append(coord)
-		current_player.shots -= 1
-
+		coord: Coordinate = Coordinate(letter, number)
 		# debug(current_player)
 		# debug(opponent)
-		hit, target_boat = check_hit(current_player, opponent, coord)
-
-		if (not isInBounds(coord, BOARD_SIZE)):
-			print("Fuera de los limites del tablero!")
-			current_player.shots += 1
+		if (not valid_shot(current_player.attempts, coord)):
 			continue
+
+		hit, target_boat = check_hit(current_player, opponent, coord)
+		current_player.shots -= 1
+		current_player.attempts.append(coord)
 
 		if (hit and target_boat.__isSunk__()):
 			input(f"{current_player.name} hundiste un barco!")

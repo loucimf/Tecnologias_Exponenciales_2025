@@ -80,21 +80,25 @@ DEFAULT_BOATS_COORDINATES: list[Ship] = []
 # while this does generate default boat coordinates it actually does not. 
 # this both generates coordinates for boats and creates the boats and appends it to the default_boat..., so the default list itself, is composed of many classes of boat, that are the same for both players
 for i in range(MINIMUM_BOATS):
-    from .helper import set_all_coordinates
+    from .helper import set_all_coordinates, debug_boat
     # Create a ship with size 1 and coordinates
     start_coord: Coordinate = Coordinate(ALPHABET[i], 0)
     end_coord: Coordinate = Coordinate(ALPHABET[i], 2)
-    
-    ship = Ship(1, start_coord, end_coord, [])
 
+    ship = Ship(1, start_coord, end_coord, [])
 
     set_all_coordinates(ship)
     ship.size = ship.coords.__len__()
+
+    # debug_boat(ship)
 
     DEFAULT_BOATS_COORDINATES.append(ship)
 
 # same as paint_symbols but w/o validation
 def no_validation_paint_symbols(player: Player, allBoats: list[Ship]):
+
+    from .helper import debug_boat, write_end_characters
+
     print(player.name)
     for _boats in allBoats:
         print("Boat: ", _boats.start_coord.letter, _boats.start_coord.number, " - ", _boats.end_coord.letter, _boats.end_coord.number)
@@ -102,12 +106,12 @@ def no_validation_paint_symbols(player: Player, allBoats: list[Ship]):
     for boat in allBoats:
         for coord in boat.coords:
             
-            from .helper import write_end_characters
-
             x, y = coord.getMatrixPosition()
+
+            # debug_boat(boat)
 
             if (coord == boat.start_coord or coord == boat.end_coord):
                 write_end_characters(player.board, x, y, boat)
                 continue
-
+            
             player.board.place_symbol(x, y, '■')

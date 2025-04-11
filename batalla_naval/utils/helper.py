@@ -1,6 +1,6 @@
 
 from .classes import Ship, Coordinate, Player, Board, DEFAULT_BOATS_COORDINATES
-from config import ALPHABET
+from config import ALPHABET, BOARD_SIZE
 
 
 def get_numbers_between(num1: int, num2: int):
@@ -16,6 +16,19 @@ def isSameAbstractCoord(coord1: Coordinate, coord2: Coordinate) -> bool:
     if (coord1.letter == coord2.letter and coord1.number == coord2.number):
         return True
     return False
+
+def valid_shot(player_attempts: list[Coordinate], target_coord: Coordinate) -> bool:
+
+    if (not isInBounds(target_coord)):
+        print("Fuera de los limites del tablero! - VOLVER A INTENTAR")
+        return False
+
+    if (isOnTop(player_attempts, target_coord)):
+        print("Ya disparaste ahi! - VOLVER A INTENTAR")
+        return False
+    
+
+    return True
 
 def check_hit(player: Player, opponent: Player, coord: Coordinate):
     # check if the coordinate is in any of the boats
@@ -40,15 +53,18 @@ def check_hit(player: Player, opponent: Player, coord: Coordinate):
     return False, None
 
 def set_all_coordinates(boat: Ship):
-    allCoordinates: list = []
+    allCoordinates: list[Coordinate] = []
     startCoord: Coordinate = boat.start_coord
     endCoord: Coordinate = boat.end_coord
 
     allCoordinates.append(startCoord)
-    
-    if (not isVertical(boat)): 
+
+    if (isVertical(boat)): 
         # get the missing numbers in the Y axis (number axis)
+
+        print("Boat is VERTICAL")
         missingCoords: list = get_numbers_between(startCoord.number, endCoord.number)
+        print("Boat missing coords---  ", missingCoords)
         for yCoords in missingCoords: 
             coordinate: Coordinate = Coordinate(startCoord.letter, yCoords)
             allCoordinates.append(coordinate)
@@ -56,14 +72,16 @@ def set_all_coordinates(boat: Ship):
 
     else: 
         # get raw coords for alphabet identification
-        raw_start_coords: list = startCoord.getMatrixPosition()
-        raw_end_coords: list = endCoord.getMatrixPosition()
+        print("Boat is HORIZONTAL")
+        raw_start_coords_X: list = startCoord.getMatrixPosition()[0]
+        raw_end_coords_X: list = endCoord.getMatrixPosition()[0]
     
         # get the missing numbers in the X axis (letter axis)
-        missingCoords: list = get_numbers_between(raw_start_coords[0], raw_end_coords[0])
+        missingCoords: list = get_numbers_between(raw_start_coords_X, raw_end_coords_X)
+        print("Boat missing coords---  ", missingCoords)
         for xCoords in missingCoords: 
             coordinate: Coordinate = Coordinate(ALPHABET[xCoords], startCoord.number)
-            # append the coords (processed) to allCoordinates 
+            # append the coords (abstract) to allCoordinates 
             allCoordinates.append(coordinate)
 
         allCoordinates.append(endCoord)
@@ -86,11 +104,14 @@ def isADiagonal(boat: Ship):
     return True
     
 def isOnTop(allCoords: list[Coordinate], currentCoord: Coordinate):
+    print("All coords: ")
     for coordIndex in allCoords:
+        print(" - ", coordIndex.letter, coordIndex.number)
         if (isSameAbstractCoord(coordIndex, currentCoord)):
             return True
-        return False
-    
+    return False    
+
+
 def isOverlappingBoats(coord: Coordinate, player_boats: list[Ship]) -> bool:
     # iterate over each boat player has
     for otherBoat in player_boats:
@@ -101,12 +122,12 @@ def isOverlappingBoats(coord: Coordinate, player_boats: list[Ship]) -> bool:
                 return True
     return False
 
-def isInBounds(coord: Coordinate, board_size: int) -> bool:
+def isInBounds(coord: Coordinate) -> bool:
     # this weird syntax, creates a sublist of the alphabet with the size of the board
-    ALPHABET_SECTOR = ALPHABET[:board_size]
+    ALPHABET_SECTOR = ALPHABET[:BOARD_SIZE]
 
     # y ahora checkea el rango entre el alphabeto en base a boardsize y boardsize
-    if ((coord.letter in ALPHABET_SECTOR) and (coord.number in range(board_size))):
+    if ((coord.letter in ALPHABET_SECTOR) and (coord.number in range(BOARD_SIZE))):
         return True
     return False
 
@@ -142,6 +163,7 @@ def is_valid_coordinate(currentCoord: Coordinate, boat: Ship, allBoats: list[Shi
     return True
 
 def debug_boat(boat: Ship):
+    print("- BOAT DEBUGGING -")
     print("Ship size:", boat.size)
     print("Ship hits:", boat.hits)
     print("Ship coordinates:")
@@ -149,6 +171,7 @@ def debug_boat(boat: Ship):
         print("- ", coords.letter, coords.number)
 
 def debug_player(player: Player):
+    print("- PLAYER DEBUGGING -")
     print("Player name:", player.name)
     print("Player shots:", player.shots)
     print("Player attempts:")
@@ -156,6 +179,7 @@ def debug_player(player: Player):
         print("- ", attempt.letter, attempt.number)
 
 def debug_board(board: Board):
+    print("- BOARD DEBUGGING -")
     print("Board size:", board.size)
     print("board display:", board.display())
 
@@ -179,7 +203,6 @@ def write_end_characters(board, x, y, boat: Ship) -> list:
         else:
             board.place_symbol(x, y, '◗')
         
-
 def clone_boats():
     # clone the boats in default
     new_boats = []

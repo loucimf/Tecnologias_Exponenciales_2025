@@ -5,6 +5,8 @@ ALPHABET: list = [
     "U", "V", "W", "X", "Y", "Z"
 ]
 
+
+
 BOAT_AMOUNT: int = 5
 BOARD_SIZE: int= 10
 MINIMUM_SHOTS: int = 5
