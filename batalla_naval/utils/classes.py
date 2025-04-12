@@ -1,26 +1,27 @@
-import string
 import random
+import string
 from colorama import init, Fore, Style
 init(autoreset=True)
 
 class Ship:
-    def __init__(self, size, name):
+    def __init__(self, name, size, coords=[]):
         self.name = name
-        self.hits = 0
         self.size = size
-        self.coordinates = []
+        self.coordinates = coords
+        self.hits = 0
+
+    def set_coordinates(self, coords):
+        self.coordinates = coords
 
     def is_sunk(self):
         return self.hits >= self.size
 
-    def set_coordinates(self, coordinates):
-        self.coordinates = coordinates
-
-    def set_hit(self, x, y):
+    def register_hit(self, x, y):
         if (x, y) in self.coordinates:
             self.hits += 1
             return True
         return False
+
 
 class Board:
     def __init__(self, size):
@@ -30,7 +31,7 @@ class Board:
     def colorize(self, symbol):
         if symbol == '~':
             return Fore.CYAN + symbol + Style.RESET_ALL
-        elif symbol == 'S':
+        elif symbol == 'B':
             return Fore.WHITE + symbol + Style.RESET_ALL
         elif symbol == 'X':
             return Fore.RED + symbol + Style.RESET_ALL
@@ -44,154 +45,120 @@ class Board:
             letter = string.ascii_uppercase[idx]
             display_row = []
             for cell in row:
-                if hide_ships and cell == 'S':
+                if hide_ships and cell == 'B':
                     display_row.append(self.colorize('~'))
                 else:
                     display_row.append(self.colorize(cell))
             print(f"{letter}  " + " ".join(display_row))
 
-    def place_ships(self, ship: Ship, coordinates: list):
-        for (x, y) in coordinates:
+    def can_place_ship(self, coords):
+        for x, y in coords:
+            if not (0 <= x < self.size and 0 <= y < self.size):
+                return False
             if self.grid[y][x] != '~':
-                raise Exception(f"Posición ocupada en ({x}, {y})")
-        for (x, y) in coordinates:
-            self.grid[y][x] = 'S'
-        ship.set_coordinates(coordinates)
+                return False
+        return True
+
+    def place_ship(self, ship: Ship):
+        for x, y in ship.coordinates:
+            self.grid[y][x] = 'B'
 
     def place_symbol(self, x, y, symbol):
-        if 0 <= x < self.size and 0 <= y < self.size:
-            if self.grid[y][x] in ['~', 'S']:
-                self.grid[y][x] = symbol
-            else:
-                raise Exception('Posición ocupada')
+        if self.grid[y][x] in ['~', 'B']:
+            self.grid[y][x] = symbol
+
+    def has_ship(self, x, y):
+        return self.grid[y][x] == 'B'
+
+    def remaining_ships(self):
+        return sum(row.count('B') for row in self.grid)
+
 
 class Player:
-    def __init__(self, default_board: Board, attack_board: Board, name: str):
+    def __init__(self, name, board_size, ship_list):
         self.name = name
-        self.attempts = []
+        self.board = Board(board_size)
         self.ships = []
-        self.board = default_board
-        self.attack_board = attack_board
+        self.aciertos = 0
+        self.fallos = 0
+        self.attempts = []
 
-    def place_ship(self, ship: Ship, coords: list):
-        self.board.place_ships(ship, coords)
-        self.ships.append(ship)
+        print(f"\n{name}, coloca tus barcos:")
+        self.place_ships_manual(ship_list)
 
-    def place_ships_manual(self):
-        ships_to_place = [
-            ("Destructor", 2),
-            ("Submarino", 3),
-            ("Acorazado", 4)
-        ]
-
-        for name, size in ships_to_place:
+    def place_ships_manual(self, ship_list):
+        for name, size in ship_list:
             while True:
                 try:
-                    print(f"\n{name} ({size} espacios)")
-                    letra = input("Fila inicial (A-J): ").upper()
+                    print(f"\nColocando: {name} ({size} casillas)")
+                    letra = input(f"Fila inicial (A-{chr(64+self.board.size)}): ").upper()
                     y = string.ascii_uppercase.index(letra)
-                    x = int(input("Columna inicial (0-9): "))
+                    x = int(input(f"Columna inicial (0-{self.board.size-1}): "))
                     direction = input("Dirección (H/V): ").upper()
 
                     if direction not in ['H', 'V']:
                         print("Dirección inválida. Usa H o V.")
                         continue
 
-                    if direction == 'H':
-                        if x + size > self.board.size:
-                            print("¡No cabe horizontalmente!")
-                            continue
-                        coords = [(x + i, y) for i in range(size)]
-                    else:
-                        if y + size > self.board.size:
-                            print("¡No cabe verticalmente!")
-                            continue
-                        coords = [(x, y + i) for i in range(size)]
+                    coords = [(x + i, y) if direction == 'H' else (x, y + i) for i in range(size)]
 
-                    ship = Ship(size, name)
-                    self.place_ship(ship, coords)
+                    if not self.board.can_place_ship(coords):
+                        print("¡Posición inválida o se sobrepone! Intenta de nuevo.")
+                        continue
+
+                    ship = Ship(name, size, coords)
+                    self.ships.append(ship)
+                    self.board.place_ship(ship)
                     self.board.display()
                     break
                 except Exception as e:
                     print(f"Error: {e}. Intenta de nuevo.")
 
-    def place_ships_auto(self):
-        ships_to_place = [
-            ("Destructor", 2),
-            ("Submarino", 3),
-            ("Acorazado", 4)
-        ]
-
-        for name, size in ships_to_place:
-            placed = False
-            while not placed:
-                direction = random.choice(['H', 'V'])
-                x = random.randint(0, self.board.size - (size if direction == 'H' else 1))
-                y = random.randint(0, self.board.size - (size if direction == 'V' else 1))
-                coords = [(x + i, y) if direction == 'H' else (x, y + i) for i in range(size)]
-                try:
-                    ship = Ship(size, name)
-                    self.place_ship(ship, coords)
-                    placed = True
-                except:
-                    continue
 
 class Game:
-    def __init__(self):
+    def __init__(self, size=10, ship_def=None, max_attempts=20):
+        self.size = size
+        self.max_attempts = max_attempts
         self.players = []
+        self.ship_def = ship_def or [
+            ("Lancha", 1),
+            ("Destructor", 2),
+            ("Submarino", 3)
+        ]
 
-    def add_player(self, name, modo='manual'):
-        if len(self.players) >= 2:
-            raise Exception('Solo se permiten dos jugadores')
-
-        board = Board(10)
-        attack_board = Board(10)
-        player = Player(board, attack_board, name)
-
-        if modo == 'manual':
-            print(f"\n{name}, coloca tus barcos:")
-            player.place_ships_manual()
-        elif modo == 'auto':
-            player.place_ships_auto()
-            print(f"\n{name} ha colocado sus barcos automáticamente.")
-
+    def add_player(self, name):
+        player = Player(name, self.size, self.ship_def)
         self.players.append(player)
-        return player
 
-    def fire(self, attacker: Player, defender: Player, x: int, y: int):
+    def fire(self, attacker: Player, defender: Player, x, y):
         if (x, y) in attacker.attempts:
-            print('Ya disparaste ahí.')
+            print("Ya disparaste ahí.")
             return False
 
         attacker.attempts.append((x, y))
 
         for ship in defender.ships:
-            if (x, y) in ship.coordinates:
-                ship.set_hit(x, y)
-                attacker.attack_board.place_symbol(x, y, 'X')
+            if ship.register_hit(x, y):
+                attacker.aciertos += 1
                 defender.board.place_symbol(x, y, 'X')
-                print(f"{attacker.name} acertó en ({x},{y})")
+                print(Fore.GREEN + f"{attacker.name} acertó en ({x},{y})")
                 return True
 
-        attacker.attack_board.place_symbol(x, y, 'O')
+        attacker.fallos += 1
         defender.board.place_symbol(x, y, 'O')
-        print(f"{attacker.name} falló en ({x},{y})")
+        print(Fore.MAGENTA + f"{attacker.name} falló en ({x},{y})")
         return False
 
-    def start_game(self):
-        if len(self.players) != 2:
-            raise Exception('Se necesitan dos jugadores')
+    def start(self):
+        turno = 0
+        total_turnos = self.max_attempts * 2
 
-        attacker, defender = self.players
-        turno = 1
+        while turno < total_turnos:
+            attacker = self.players[turno % 2]
+            defender = self.players[(turno + 1) % 2]
 
-        while True:
-            print(f"\nTurno {turno}: {attacker.name} dispara.")
-            print("\n== Tablero de Ataques ==")
-            attacker.attack_board.display(hide_ships=True)
-
-            print("\n== Tu Tablero de Defensa ==")
-            attacker.board.display()
+            print(f"\nTurno {turno + 1} - {attacker.name} dispara:")
+            defender.board.display(hide_ships=True)
 
             try:
                 letra = input("Fila (A-J): ").upper()
@@ -201,13 +168,31 @@ class Game:
                 self.fire(attacker, defender, x, y)
 
                 if all(ship.is_sunk() for ship in defender.ships):
-                    print(f"\n{attacker.name} ha ganado. ¡Todos los barcos de {defender.name} han sido hundidos!")
+                    print(f"\n🏆 ¡{attacker.name} ha ganado! Hundió todos los barcos de {defender.name}.")
                     break
 
-                attacker, defender = defender, attacker
                 turno += 1
-
-            except ValueError:
-                print("Coordenadas inválidas.")
             except Exception as e:
                 print(f"Error: {e}")
+
+        print("\n=== Fin del Juego ===")
+        for player in self.players:
+            print(f"\n{player.name} - Aciertos: {player.aciertos}, Fallos: {player.fallos}")
+            print("Tablero Final:")
+            player.board.display()
+
+
+# --- EJECUCIÓN DEL JUEGO ---
+if __name__ == "__main__":
+    juego = Game(
+        size=10,
+        ship_def=[
+            ("Lancha", 1),
+            ("Destructor", 2),
+            ("Submarino", 3)
+        ],
+        max_attempts=15
+    )
+    juego.add_player("Jugador 1")
+    juego.add_player("Jugador 2")
+    juego.start()
