@@ -64,7 +64,7 @@ def set_all_coordinates(boat: Ship):
 
         print("Boat is VERTICAL")
         missingCoords: list = get_numbers_between(startCoord.number, endCoord.number)
-        print("Boat missing coords---  ", missingCoords)
+        print("Refilling boat middle coords---  ", missingCoords)
         for yCoords in missingCoords: 
             coordinate: Coordinate = Coordinate(startCoord.letter, yCoords)
             allCoordinates.append(coordinate)
@@ -140,7 +140,7 @@ def is_valid_coordinate(currentCoord: Coordinate, boat: Ship, allBoats: list[Shi
         print("Start coord detected")  
         return True  
 
-    if (not isInBounds(currentCoord, BOARD_SIZE)):
+    if (not isInBounds(currentCoord)):
         print("Out of bounds detected")
         return False
 
@@ -203,7 +203,7 @@ def write_end_characters(board, x, y, boat: Ship) -> list:
         else:
             board.place_symbol(x, y, '◗')
         
-def clone_boats():
+def clone_boats() -> list[Ship]:
     # clone the boats in default
     new_boats = []
     for boat in DEFAULT_BOATS_COORDINATES:

@@ -116,6 +116,3 @@ def play_game():
 
 		current_player, opponent = opponent, current_player
 		
-if (__name__ == "__main__"):
-	main()
-
