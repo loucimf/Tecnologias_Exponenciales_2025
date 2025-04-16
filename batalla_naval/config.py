@@ -28,8 +28,37 @@ def calculate_boats(BOARD_SIZE: int, MINIMUM_BOATS: int, SCALE_FACTOR: float, MA
     total_boats = MINIMUM_BOATS + additional_boats
     return min(total_boats, MAX_BOATS)
 
+def generate_boat_sizes(boat_amount: int) -> list[int]:
+    boat_sizes = [2, 3, 4, 5]
+
+    weights = {
+        2: 3,
+        3: 3,
+        4: 2,
+        5: 2,
+    }
+
+    total_weight = sum(weights.values())
+    proportions = {size: (weights[size] / total_weight) for size in boat_sizes}
+
+    size_counts = {size: (int(proportions[size] * boat_amount)) for size in boat_sizes}
+
+    current_total = sum(size_counts.values())
+
+    while current_total < boat_amount:
+        min_size = min(size_counts, key=size_counts.get)
+        size_counts[min_size] += 1
+        current_total += 1
+
+    result = []
+    for size, count in size_counts.items():
+        result.extend([size] * count)
+
+    return result
+
+
 
 SHOTS: int = calculate_shots(BOARD_SIZE, MINIMUM_SHOTS, MAX_SHOTS, 0.15)
 BOATS_AMOUNT: int = calculate_boats(BOARD_SIZE, MINIMUM_BOATS, 0.05, MAX_BOATS)
-
+BOAT_SIZES_LIST: list = generate_boat_sizes(BOATS_AMOUNT)
 

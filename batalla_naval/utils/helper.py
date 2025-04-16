@@ -1,6 +1,7 @@
 
+import os, time, sys
 from .classes import Ship, Coordinate, Player, Board, DEFAULT_BOATS_COORDINATES
-from config import ALPHABET
+from config import ALPHABET, BOARD_SIZE
 
 
 def get_numbers_between(num1: int, num2: int):
@@ -39,20 +40,33 @@ def check_hit(player: Player, opponent: Player, coord: Coordinate):
     input("MISS...")
     return False, None
 
+def valid_shot(coord: Coordinate, player_attempts: list[Coordinate]):
+
+    if (not isInBounds(coord, BOARD_SIZE)):
+        print("Fuera de los limites del tablero!")
+        return False
+    
+    if (isOnTop(player_attempts, coord)):
+        print("Ya disparaste ahi!")
+        return False
+    
+    return True
+
+
+
 def set_all_coordinates(boat: Ship):
-    allCoordinates: list = []
+    allCoordinates: list[Coordinate] = []
     startCoord: Coordinate = boat.start_coord
     endCoord: Coordinate = boat.end_coord
 
     allCoordinates.append(startCoord)
     
-    if (not isVertical(boat)): 
+    if (isVertical(boat)): 
         # get the missing numbers in the Y axis (number axis)
         missingCoords: list = get_numbers_between(startCoord.number, endCoord.number)
         for yCoords in missingCoords: 
             coordinate: Coordinate = Coordinate(startCoord.letter, yCoords)
             allCoordinates.append(coordinate)
-        allCoordinates.append(endCoord)
 
     else: 
         # get raw coords for alphabet identification
@@ -66,8 +80,8 @@ def set_all_coordinates(boat: Ship):
             # append the coords (processed) to allCoordinates 
             allCoordinates.append(coordinate)
 
-        allCoordinates.append(endCoord)
-    # set the coordinates to the boat
+    allCoordinates.append(endCoord)
+    print("All boat coords:", allCoordinates)
     boat.coords = allCoordinates
 
 
@@ -89,7 +103,7 @@ def isOnTop(allCoords: list[Coordinate], currentCoord: Coordinate):
     for coordIndex in allCoords:
         if (isSameAbstractCoord(coordIndex, currentCoord)):
             return True
-        return False
+    return False
     
 def isOverlappingBoats(coord: Coordinate, player_boats: list[Ship]) -> bool:
     # iterate over each boat player has
@@ -130,10 +144,6 @@ def is_valid_coordinate(currentCoord: Coordinate, boat: Ship, allBoats: list[Shi
     if (allCoords[0] == currentCoord):
         print("Start coord detected")
         return True
-    
-    if isOnTop(allCoords, currentCoord):
-        print("On Top detected")
-        return False
     
     if isADiagonal(boat):
         print("Diagonal detected")
@@ -189,3 +199,63 @@ def clone_boats():
 
     return new_boats    
 
+
+def pause_time(seconds=3):
+    message = "WAITING"
+    total_dots = 30
+    interval = seconds / total_dots
+
+    for i in range(total_dots + 1):
+        left_dashes = '-' * i
+        right_dashes = '-' * (total_dots - i)
+        sys.stdout.write(f"\r{left_dashes} {message} {right_dashes}")
+        sys.stdout.flush()
+        time.sleep(interval)
+
+    print()
+
+def clear_screen():
+    # so ts works on the windows pc too
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+def get_coord_input(boatNumber: int, text: str):
+    try:
+        parts = input(f"Bote nro {boatNumber + 1}: Introducir coordenada {text} separadas por un espacio: ").split()
+        letter = parts[0]
+        number = int(parts[1]) - 1
+
+        if len(parts) != 2:
+            raise ValueError("Deben ser 2 valores")
+
+        return True, letter, number
+    
+    except ValueError:
+        print("Se escribieron los numeros de manera INVALIDA, reintentar")
+        return False, None, None
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return False, None, None
+    
+def get_attack_coord_input():
+    try:
+        parts = input(f"Introducir coordenada a atacar separadas por un espacio: ").split()
+        letter = parts[0]
+        number = int(parts[1]) - 1
+
+        if len(parts) != 2:
+            raise ValueError("Deben ser 2 valores")
+
+        return True, letter, number
+    
+    except ValueError:
+        print("Se escribieron los numeros de manera INVALIDA, reintentar")
+        return False, None, None
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        return False, None, None
+    

@@ -7,7 +7,7 @@ class Coordinate:
         self.letter = letter
         self.number = number
     
-    def getMatrixPosition(self): # 😎 (super jaker)
+    def getMatrixPosition(self): # 😎😎😎 (super jaker)
         return [ALPHABET.index(self.letter), self.number] #
 
 class Ship:
@@ -26,7 +26,6 @@ class Board:
         self.size = size
         self.grid = [['~' for _ in range(size)] for _ in range(size)]
     
-    # overall weird syntax but simple
     def display(self): 
         #ts crea una sequencia de 0 a (size - 1) y crea expresiones string con cada elemento de alphabet y "transforma" todo a string (las columnas), todo neatly spaced
         print("   " + " ".join(ALPHABET[i] for i in range(self.size)))
@@ -34,19 +33,31 @@ class Board:
         for idx, row in enumerate(self.grid):
             # so the rows dont start at 0, 1, 2, 3
             print(f"{idx + 1:>2} " + " ".join(row))
+
+    # same logic as display(), but instead prints both rows in the same string w correct spacing
+    def display_two_boards(self, other_board, label_right="ATTACK"):
+        size = self.size
+        column_labels = "   " + " ".join(ALPHABET[i] for i in range(size))
+        print(f"{column_labels}     {column_labels}  <-- {label_right}")
+        
+        for i in range(size):
+            row_num = f"{i + 1:2}"
+            row_self = " ".join(self.grid[i])
+            row_other = " ".join(other_board.grid[i])
+            print(f"{row_num} {row_self}     {row_num} {row_other}")
+
         
     def place_symbol(self, x: int, y: int, symbol): 
         if 0 <= x < self.size and 0 <= y < self.size:
             self.grid[y][x] = symbol
 
     def place_boat(self, boat: Ship, compare_list: list[Ship]):
-        boat_coords = boat.coords
 
         # !!!IMPORTANT!!!!!! import only when needed  
         from .helper import write_end_characters, is_valid_coordinate
-        # medio feo, pero es para evitar el import circular :)
 
-        for coord in boat_coords:
+        for coord in boat.coords:
+            print("COORD -", coord.letter, coord.number)
             if (is_valid_coordinate(coord, boat, compare_list, BOARD_SIZE)):
 
                 print("Placing boat at: ", coord.letter, coord.number)
@@ -58,11 +69,11 @@ class Board:
 
                 self.place_symbol(x, y, '■')
             else:
-                compare_list.remove(boat)
                 print("INVALID_COORDINATE")
-                input("Porfavor, volver a intentar")
-                break
+                input("Porfavor, volver a intentar [enter]")
+                return False
         
+        return True
 class Player: 
     def __init__(self, default_board: Board, attack_board: Board, name: str, ships: list[Ship], shots: int): 
         self.name = name
@@ -73,11 +84,10 @@ class Player:
         self.attack_board = attack_board
 
 
-
-# for testing THIS WAS THE ERRORRR
+# ERR
 DEFAULT_BOATS_COORDINATES: list[Ship] = []
 
-# while this does generate default boat coordinates it actually does not. 
+# while this does generate default boat coordinates it actually does not 💀💀. 
 # this both generates coordinates for boats and creates the boats and appends it to the default_boat..., so the default list itself, is composed of many classes of boat, that are the same for both players
 for i in range(MINIMUM_BOATS):
     from .helper import set_all_coordinates
