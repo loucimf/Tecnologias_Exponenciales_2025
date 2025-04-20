@@ -51,29 +51,21 @@ class Board:
         if 0 <= x < self.size and 0 <= y < self.size:
             self.grid[y][x] = symbol
 
-    def place_boat(self, boat: Ship, compare_list: list[Ship]):
+    def place_boat(self, boat: Ship):
 
         # !!!IMPORTANT!!!!!! import only when needed  
-        from .helper import write_end_characters, is_valid_coordinate
+        from .helper import write_end_characters
 
         for coord in boat.coords:
-            print("COORD -", coord.letter, coord.number)
-            if (is_valid_coordinate(coord, boat, compare_list, BOARD_SIZE)):
+            x, y = coord.getMatrixPosition()
 
-                print("Placing boat at: ", coord.letter, coord.number)
-                x, y = coord.getMatrixPosition()
+            if (coord == boat.start_coord or coord == boat.end_coord):
+                write_end_characters(self, x, y, boat)
+                continue
 
-                if (coord == boat.start_coord or coord == boat.end_coord):
-                    write_end_characters(self, x, y, boat)
-                    continue
-
-                self.place_symbol(x, y, '■')
-            else:
-                print("INVALID_COORDINATE")
-                input("Porfavor, volver a intentar [enter]")
-                return False
-        
+            self.place_symbol(x, y, '■')
         return True
+    
 class Player: 
     def __init__(self, default_board: Board, attack_board: Board, name: str, ships: list[Ship], shots: int): 
         self.name = name
@@ -106,9 +98,6 @@ for i in range(MINIMUM_BOATS):
 # same as paint_symbols but w/o validation
 def no_validation_paint_symbols(player: Player, allBoats: list[Ship]):
     print(player.name)
-    for _boats in allBoats:
-        print("Boat: ", _boats.start_coord.letter, _boats.start_coord.number, " - ", _boats.end_coord.letter, _boats.end_coord.number)
-
     for boat in allBoats:
         for coord in boat.coords:
             

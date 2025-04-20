@@ -4,7 +4,7 @@
 """
 from config import BOARD_SIZE, BOAT_AMOUNT, SHOTS, BOAT_SIZES_LIST
 from utils.classes import Board, Player, Ship, Coordinate, no_validation_paint_symbols
-from utils.helper import set_all_coordinates, check_hit, debug, clone_boats, valid_shot, pause_time, clear_screen, get_coord_input, get_attack_coord_input
+from utils.helper import *
 
 
 name_1 = input("Nombre jugador 1: ")
@@ -33,9 +33,15 @@ def chooseBoatLocations(player: Player):
 		print(f"El barco tiene que medir: {boat_list[boatIndex]} casillas!")
 
 		valid_input_1, letter, number = get_coord_input(boatIndex, "-INICIAL-")
+
+		if (not valid_input_1):
+			clear_screen()
+			continue
+
 		valid_input_2, letter2, number2 = get_coord_input(boatIndex, "-FINAL-")
 
-		if (not valid_input_1 or not valid_input_2):
+		if (not valid_input_2):
+			clear_screen()
 			continue
 
 		start_coord = Coordinate(letter, number)
@@ -53,7 +59,10 @@ def chooseBoatLocations(player: Player):
 			input(f"TAMAÑO INVALIDO DE BARCO, TIENE QUE MEDIR: {boat_list[boatIndex]} CASILLAS. [enter]")
 			continue
 
-		boat_placed = player.board.place_boat(boat, allBoats) # validate boat && place it
+		if not valid_boat(boat, allBoats):
+			continue
+
+		boat_placed = player.board.place_boat(boat)
 
 		if (not boat_placed):
 			continue
@@ -69,6 +78,12 @@ def setup_game():
 	clear_screen()
 	chooseBoatLocations(playerTwo)
 	clear_screen()
+
+def valid_boat(boat: Ship, compare_list: list[Ship]):
+	for coord in boat.coords:
+		if (not is_valid_coordinate(coord, boat, compare_list, BOARD_SIZE)):
+			return False
+	return True
 
 def main():
 	setup_game()
@@ -111,6 +126,7 @@ def play_game():
 		current_player.board.display_two_boards(current_player.attack_board)
 
 		valid, letter, number = get_attack_coord_input()
+
 		if (not valid):
 			print("Invalido!")
 			continue
@@ -129,10 +145,11 @@ def play_game():
 		current_player.attempts.append(coord)
 		
 		hit, target_boat = check_hit(current_player, opponent, coord)
+		clear_screen()
 
 		if (hit and target_boat.__isSunk__()):
 			input(f"{current_player.name} hundiste un barco!")
-
+		
 		if (check_game_over(opponent)):
 			print(f"{current_player.name} gano!")
 			current_player.board.display_two_boards(opponent.board, f"{opponent.name}")
@@ -141,9 +158,7 @@ def play_game():
 
 		current_player.shots -= 1
 		current_player, opponent = opponent, current_player
-		clear_screen()
 		pause_time()
-		clear_screen()
 		
 if (__name__ == "__main__"):
 	main()

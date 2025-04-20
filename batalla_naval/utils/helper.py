@@ -52,8 +52,6 @@ def valid_shot(coord: Coordinate, player_attempts: list[Coordinate]):
     
     return True
 
-
-
 def set_all_coordinates(boat: Ship):
     allCoordinates: list[Coordinate] = []
     startCoord: Coordinate = boat.start_coord
@@ -81,9 +79,7 @@ def set_all_coordinates(boat: Ship):
             allCoordinates.append(coordinate)
 
     allCoordinates.append(endCoord)
-    print("All boat coords:", allCoordinates)
     boat.coords = allCoordinates
-
 
 # helper functions (for the validation)
 def isVertical(boat: Ship) -> bool:
@@ -127,25 +123,19 @@ def isInBounds(coord: Coordinate, board_size: int) -> bool:
 
 # main funcs
 def is_valid_coordinate(currentCoord: Coordinate, boat: Ship, allBoats: list[Ship], BOARD_SIZE: int) -> bool:    
-    allCoords: list[Coordinate] = boat.coords
-
-    if (allCoords[0] == currentCoord):
-        print("Start coord detected")  
-        return True  
 
     if (not isInBounds(currentCoord, BOARD_SIZE)):
+        clear_screen()
         print("Out of bounds detected")
         return False
 
     if (isOverlappingBoats(currentCoord, allBoats)):
+        clear_screen()
         print("Overlapping detected")
         return False
     
-    if (allCoords[0] == currentCoord):
-        print("Start coord detected")
-        return True
-    
     if isADiagonal(boat):
+        clear_screen()
         print("Diagonal detected")
         return False
     
@@ -201,18 +191,16 @@ def clone_boats():
 
 
 def pause_time(seconds=3):
-    message = "WAITING"
+    message = "◖■■■◗"
     total_dots = 30
     interval = seconds / total_dots
-
+    print("                             CAMBIA TURNO")
     for i in range(total_dots + 1):
-        left_dashes = '-' * i
-        right_dashes = '-' * (total_dots - i)
+        left_dashes = '~ ' * i
+        right_dashes = ' ~' * (total_dots - i)
         sys.stdout.write(f"\r{left_dashes} {message} {right_dashes}")
         sys.stdout.flush()
         time.sleep(interval)
-
-    print()
 
 def clear_screen():
     # so ts works on the windows pc too
@@ -228,7 +216,7 @@ def get_coord_input(boatNumber: int, text: str):
         number = int(parts[1]) - 1
 
         if len(parts) != 2:
-            raise ValueError("Deben ser 2 valores")
+            raise ValueError
 
         return True, letter, number
     
@@ -236,8 +224,8 @@ def get_coord_input(boatNumber: int, text: str):
         print("Se escribieron los numeros de manera INVALIDA, reintentar")
         return False, None, None
     
-    except Exception as e:
-        print(f"Error: {e}")
+    except IndexError:
+        print(f"Se escribio la coordenada de manera INVALIDA, reintentar")
         return False, None, None
     
 def get_attack_coord_input():
@@ -247,15 +235,17 @@ def get_attack_coord_input():
         number = int(parts[1]) - 1
 
         if len(parts) != 2:
-            raise ValueError("Deben ser 2 valores")
+            raise ValueError()
 
         return True, letter, number
     
     except ValueError:
-        print("Se escribieron los numeros de manera INVALIDA, reintentar")
+        clear_screen()
+        print("Se escribieron los valores de manera INVALIDA, reintentar")
         return False, None, None
     
-    except Exception as e:
-        print(f"Error: {e}")
+    except IndexError:
+        clear_screen()
+        print(f"Se escribio la coordenada de manera INVALIDA, reintentar")
         return False, None, None
     

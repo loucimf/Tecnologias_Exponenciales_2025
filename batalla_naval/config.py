@@ -7,7 +7,7 @@ ALPHABET: list = [
 
 BOAT_AMOUNT: int = 5
 BOARD_SIZE: int= 10
-MINIMUM_SHOTS: int = 5
+MINIMUM_SHOTS: int = 10
 MINIMUM_BOATS: int = 4
 
 MAX_BOATS: int = 10
@@ -32,9 +32,9 @@ def generate_boat_sizes(boat_amount: int) -> list[int]:
     boat_sizes = [2, 3, 4, 5]
 
     weights = {
-        2: 3,
+        2: 2,
         3: 3,
-        4: 2,
+        4: 4,
         5: 2,
     }
 
