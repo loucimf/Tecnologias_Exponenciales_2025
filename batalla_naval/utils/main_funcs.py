@@ -120,13 +120,13 @@ def get_coord_input(boatNumber: int, text: str, type: str) -> tuple:
 	try:
 		if (type == "ATTACK"):
 			parts = input(f"Introducir coordenada a atacar separadas por un espacio: ").split()
-			letter = parts[0]
+			letter: str = parts[0].upper()
 			number = int(parts[1]) - 1
 		else:
 			parts = input(f"Bote nro {boatNumber + 1}: Introducir coordenada {text} separadas por un espacio: ").split()
-			letter = parts[0]
+			letter: str = parts[0].upper()
 			number = int(parts[1]) - 1
-
+	
 		if len(parts) != 2:
 			raise ValueError()
 

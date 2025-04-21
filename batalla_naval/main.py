@@ -2,7 +2,7 @@
 	Authors: Facundo Loucim, Maximo Sanguinetti, Agustin Geonas
 	Date: 4/4/2025
 """
-from config import BOAT_AMOUNT, BOAT_SIZES_LIST, DEBUG_MODE
+from config import DEBUG_MODE
 from utils.classes import Player, Coordinate, no_validation_paint_symbols
 from utils.helper import *
 from utils.main_funcs import *
@@ -15,9 +15,9 @@ playerTwo = setup_player(name_2)
 
 def setup_game():
 	chooseBoatLocations(playerOne)
-	clear_screen()
+	chatgpt_clear_screen()
 	chooseBoatLocations(playerTwo)
-	clear_screen()
+	chatgpt_clear_screen()
 
 def main():
 	if DEBUG_MODE: # set this to false when playin the game (los botes default no reflejan la consigna)
@@ -58,13 +58,16 @@ def play_game():
 		hit, target_boat = check_hit(current_player, opponent, coord)
 
 		if (hit):
+			clear_screen()
+			chatgpt_clear_screen()
 			if (target_boat.is_sunk()):
 				input(f"{current_player.name} hundiste un barco!")
 			win = process_game_state(current_player, opponent)
 
 			if (win):
 				break
-
+			
+			print("- - - - NO SE ROMPIO, SOLO SE BORRO EL LOG - - - - dont wory be hapy")
 			print("Vuelve a disparar!")
 			continue
 		
@@ -73,6 +76,7 @@ def play_game():
 		current_player, opponent = opponent, current_player
 		chatgpt_clear_screen()
 		pause_time()
+		print("- - - - NO SE ROMPIO, SOLO SE BORRO EL LOG - - - - dont wory be hapy")
 		
 if (__name__ == "__main__"):
 	main()
