@@ -137,3 +137,9 @@ def setup_player(name: str):
 	new_player = Player(player_default_board, player_attack_board, name, clone_boats(), SHOTS)   
 	return new_player
 
+def space_print(amount=2) -> None:
+	print("\n" * amount)
+
+def organized_text(text: str): 
+	space_print(1)
+	print(f"{text}")

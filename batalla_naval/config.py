@@ -57,7 +57,7 @@ def generate_boat_sizes(boat_amount: int) -> list[int]:
     return result
 
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 SHOTS: int = calculate_shots(BOARD_SIZE, MINIMUM_SHOTS, MAX_SHOTS, 0.15)
 BOATS_AMOUNT: int = calculate_boats(BOARD_SIZE, MINIMUM_BOATS, 0.05, MAX_BOATS)
 BOAT_SIZES_LIST: list = generate_boat_sizes(BOATS_AMOUNT)

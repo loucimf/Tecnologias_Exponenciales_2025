@@ -13,7 +13,17 @@ name_2 = input("Nombre jugador 2: ")
 playerOne = setup_player(name_1)
 playerTwo = setup_player(name_2)
 
-def setup_game():
+def instructions() -> None:
+	space_print()
+	print("-INSTRUCCIONES-")
+	organized_text("---Las coordenadas deben ir en formato: 'a 1', 'A 1'. ")
+	organized_text("---[ENTER] Significa tocar enter, para seguir el juego.")
+	organized_text("---Las coordenadas se ponen de manera -INICIAL- y -FINAL, osea que se pone la coordenada inicial del barco, y la final.")
+	organized_text("Ejemplo: INICIAL: 'A 1', FINAL: 'A 2'. ")
+	space_print()
+
+def setup_game() -> None:
+	instructions()
 	chooseBoatLocations(playerOne)
 	chatgpt_clear_screen()
 	chooseBoatLocations(playerTwo)
@@ -25,10 +35,11 @@ def main():
 		no_validation_paint_symbols(playerTwo, playerTwo.ships)
 	else:
 		setup_game()
-	
+
+	pause_time()
 	play_game()
 		
-def play_game():
+def play_game() -> None:
 	print("Empezo el juego!")
 
 	win: bool = False
@@ -68,7 +79,8 @@ def play_game():
 				break
 			
 			print("- - - - NO SE ROMPIO, SOLO SE BORRO EL LOG - - - - dont wory be hapy")
-			print("Vuelve a disparar!")
+			print("Le diste a un barco!")
+			print("Vuelve a disparar")
 			continue
 		
 		win = process_game_state(current_player, opponent)
